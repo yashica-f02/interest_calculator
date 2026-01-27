@@ -2,7 +2,7 @@ import streamlit as st
 from datetime import datetime
 import pandas as pd
 
-# -----------------------------
+# ----------------------------
 # Initialize session state
 # -----------------------------
 if 'records' not in st.session_state:
