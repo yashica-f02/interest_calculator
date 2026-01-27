@@ -134,7 +134,7 @@ with tab2:
     duration_mode_ci = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="ci_mode")
     
     if duration_mode_ci == "Manual (Y/M/D)":
-        if duration_mode == "Manual (Y/M/D)":
+        
         col1, col2, col3 = st.columns(3)
         with col1:
             y_val = st.number_input("Years", min_value=0, step=1, key="ci_y")
