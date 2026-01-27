@@ -65,8 +65,12 @@ tab1, tab2, tab3 = st.tabs(["Simple Interest", "Compound Interest", "Records"])
 with tab1:
     st.header("Simple Interest")
 
-    P_text = st.text_input("Principal Amount ₹", value="")
-    R_text = st.text_input("Rate %", value="")
+    col1, col2 = st.columns(2)
+    with col1:
+        P_text = st.text_input("Principal Amount (₹)", value="")
+    with col2:
+        R_text = st.text_input("Rate of Interest (%)", value="")
+
 
     P = parse_number(P_text)
     R = parse_number(R_text)
