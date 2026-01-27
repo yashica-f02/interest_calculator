@@ -183,4 +183,3 @@ with tab3:
             }
             df = pd.DataFrame(data)
             st.table(df)
-
