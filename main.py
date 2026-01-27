@@ -43,11 +43,17 @@ def display_result_table(duration, interest, total, frequency=None):
     df = pd.DataFrame(data)
     st.table(df)
 
+def parse_input(val):
+    try:
+        return float(val.strip()) if val.strip() != "" else None
+    except:
+        return None
+
 # -----------------------------
 # App UI
 # -----------------------------
 st.title("Interest Calculator")
-st.caption("Clean✨. Fast⏩. Accurate💹 ")
+st.caption("Clean✨. Fast⏩. Accurate💹")
 st.caption("Financial Calculations")
 st.markdown("---")
 
@@ -61,19 +67,25 @@ with tab1:
 
     col1, col2 = st.columns(2)
     with col1:
-        P = st.number_input("Principal Amount (₹)", value, step=100.0, format="%.2f")
+        P_text = st.text_input("Principal Amount (₹)", placeholder="₹")
     with col2:
-        R = st.number_input("Rate of Interest (%)",value, step=0.1, format="%.2f")
+        R_text = st.text_input("Rate of Interest (%)", placeholder="%")
+
+    P = parse_input(P_text)
+    R = parse_input(R_text)
 
     duration_mode = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="si_mode")
     if duration_mode == "Manual (Y/M/D)":
         col1, col2, col3 = st.columns(3)
         with col1:
-            y_val = st.number_input("Years", min_value=0, step=1, key="si_y")
+            y_val = st.text_input("Years", placeholder="Y")
+            y_val = int(y_val) if y_val and y_val.isdigit() else 0
         with col2:
-            m_val = st.number_input("Months", min_value=0, max_value=11, step=1, key="si_m")
+            m_val = st.text_input("Months", placeholder="M")
+            m_val = int(m_val) if m_val and m_val.isdigit() else 0
         with col3:
-            d_val = st.number_input("Days", min_value=0, max_value=30, step=1, key="si_d")
+            d_val = st.text_input("Days", placeholder="D")
+            d_val = int(d_val) if d_val and d_val.isdigit() else 0
         total_days = y_val*365 + m_val*30 + d_val
     else:
         start_date = st.date_input("Start Date", key="si_start")
@@ -84,7 +96,7 @@ with tab1:
     per = st.radio("Rate Type", ["Per Year", "Per Month"], key="si_per")
 
     if st.button("🚀 Calculate Simple Interest"):
-        if P <= 0 or R < 0 or total_days <= 0:
+        if P is None or R is None or total_days <= 0:
             st.error("Invalid input. Check all values.")
         else:
             rate = R * 12 if per == "Per Month" else R
@@ -104,19 +116,25 @@ with tab2:
 
     col1, col2 = st.columns(2)
     with col1:
-        P = st.number_input("Principal Amount (₹)",value, step=100.0, format="%.2f", key="ci_p")
+        P_text = st.text_input("Principal Amount (₹)", placeholder="₹", key="ci_p")
     with col2:
-        R = st.number_input("Rate of Interest (%)", value, step=0.1, format="%.2f", key="ci_r")
+        R_text = st.text_input("Rate of Interest (%)", placeholder="%", key="ci_r")
+
+    P = parse_input(P_text)
+    R = parse_input(R_text)
 
     duration_mode_ci = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="ci_mode")
     if duration_mode_ci == "Manual (Y/M/D)":
         col1, col2, col3 = st.columns(3)
         with col1:
-            y_val = st.number_input("Years", min_value=0, step=1, key="ci_y")
+            y_val = st.text_input("Years", placeholder="Y", key="ci_y")
+            y_val = int(y_val) if y_val and y_val.isdigit() else 0
         with col2:
-            m_val = st.number_input("Months", min_value=0, max_value=11, step=1, key="ci_m")
+            m_val = st.text_input("Months", placeholder="M", key="ci_m")
+            m_val = int(m_val) if m_val and m_val.isdigit() else 0
         with col3:
-            d_val = st.number_input("Days", min_value=0, max_value=30, step=1, key="ci_d")
+            d_val = st.text_input("Days", placeholder="D", key="ci_d")
+            d_val = int(d_val) if d_val and d_val.isdigit() else 0
         total_days = y_val*365 + m_val*30 + d_val
     else:
         start_date = st.date_input("Start Date", key="ci_start")
@@ -130,7 +148,7 @@ with tab2:
     n_val = freq_map[freq]
 
     if st.button("🚀 Calculate Compound Interest"):
-        if P <= 0 or R < 0 or total_days <= 0:
+        if P is None or R is None or total_days <= 0:
             st.error("Invalid input. Check all values.")
         else:
             rate = R * 12 if per == "Per Month" else R
@@ -165,3 +183,4 @@ with tab3:
             }
             df = pd.DataFrame(data)
             st.table(df)
+
