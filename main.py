@@ -88,8 +88,8 @@ with tab1:
             d_val = int(d_val) if d_val and d_val.isdigit() else 0
         total_days = y_val*365 + m_val*30 + d_val
     else:
-        start_date = st.date_input("Start Date", key="si_start")
-        end_date = st.date_input("End Date", key="si_end")
+        start_date = st.date_input("Start Date", format="dd/mm/yyyy", key="si_start")
+        end_date = st.date_input("End Date", format="dd/mm/yyyy", key="si_end")
         delta = end_date - start_date
         total_days = delta.days if delta.days > 0 else 0
 
@@ -137,8 +137,8 @@ with tab2:
             d_val = int(d_val) if d_val and d_val.isdigit() else 0
         total_days = y_val*365 + m_val*30 + d_val
     else:
-        start_date = st.date_input("Start Date", key="ci_start")
-        end_date = st.date_input("End Date", key="ci_end")
+        start_date = st.date_input("Start Date", format="dd/mm/yyyy", key="ci_start")
+        end_date = st.date_input("End Date", format="dd/mm/yyyy", key="ci_end")
         delta = end_date - start_date
         total_days = delta.days if delta.days > 0 else 0
 
