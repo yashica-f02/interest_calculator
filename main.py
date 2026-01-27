@@ -52,8 +52,9 @@ def parse_number(input_str):
 # -----------------------------
 # App UI
 # -----------------------------
-st.title("💰 Interest Calculator")
-st.caption("Clean. Fast. Accurate financial calculations.")
+st.title("💰 INTEREST CALCULATOR")
+st.caption("Clean✨. Fast⏩. ")
+st.caption("ACCURATE FINANCIAL CALCULATIONS")
 st.markdown("---")
 
 tab1, tab2, tab3 = st.tabs(["Simple Interest", "Compound Interest", "Records"])
