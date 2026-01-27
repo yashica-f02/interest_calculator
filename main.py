@@ -31,7 +31,7 @@ def days_to_ymd(total_days):
     remaining_days = total_days % 365
     months = remaining_days // 30
     days = remaining_days % 30
-    return int(years), int(months), int(days)
+    return  int(days), int(months), int(years)
 
 def display_result_table(duration, interest, total, frequency=None):
     data = {
