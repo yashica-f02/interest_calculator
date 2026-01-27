@@ -61,9 +61,9 @@ with tab1:
 
     col1, col2 = st.columns(2)
     with col1:
-        P = st.number_input("Principal Amount (₹)", min_value=0, step=100.0, format="%.2f")
+        P = st.number_input("Principal Amount (₹)", min_value, step=100.0, format="%.2f")
     with col2:
-        R = st.number_input("Rate of Interest (%)", min_value=0, step=0.1, format="%.2f")
+        R = st.number_input("Rate of Interest (%)", min_value, step=0.1, format="%.2f")
 
     duration_mode = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="si_mode")
     if duration_mode == "Manual (Y/M/D)":
@@ -104,9 +104,9 @@ with tab2:
 
     col1, col2 = st.columns(2)
     with col1:
-        P = st.number_input("Principal Amount (₹)", min_value=0, step=100.0, format="%.2f", key="ci_p")
+        P = st.number_input("Principal Amount (₹)", min_value, step=100.0, format="%.2f", key="ci_p")
     with col2:
-        R = st.number_input("Rate of Interest (%)", min_value=0, step=0.1, format="%.2f", key="ci_r")
+        R = st.number_input("Rate of Interest (%)", min_value, step=0.1, format="%.2f", key="ci_r")
 
     duration_mode_ci = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="ci_mode")
     if duration_mode_ci == "Manual (Y/M/D)":
