@@ -65,15 +65,11 @@ tab1, tab2, tab3 = st.tabs(["Simple Interest", "Compound Interest", "Records"])
 with tab1:
     st.header("Simple Interest")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        P_text = st.text_input("Principal Amount (₹)", value="")
-    with col2:
-        R_text = st.text_input("Rate of Interest (%)", value="")
+    
 
 
-    P = st.number_input("Principal Amount (₹)", min_value=0.0, step=100.0)
-    R = st.number_input("Rate of Interest (%)", min_value=0.0, step=0.1)
+    P = st.number_input("Principal Amount (₹)", min_value=0, step=100.0)
+    R = st.number_input("Rate of Interest (%)", min_value=0, step=0.1)
 
 
     duration_mode = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="si_mode")
@@ -131,24 +127,24 @@ with tab2:
     with col2:
         R_text = st.text_input("Rate of Interest (%)", value="", key="ci_r")
 
-    P = parse_number(P_text)
-    R = parse_number(R_text)
+    P = st.number_input("Principal Amount (₹)", min_value=0, step=100.0)
+    R = st.number_input("Rate of Interest (%)", min_value=0, step=0.1)
 
     # Duration Mode
     duration_mode_ci = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="ci_mode")
     
     if duration_mode_ci == "Manual (Y/M/D)":
-        # Manual duration inputs side by side (blank)
+        if duration_mode == "Manual (Y/M/D)":
         col1, col2, col3 = st.columns(3)
         with col1:
-            years_text = st.text_input("Years", value="", key="ci_y")
-            y_val = int(years_text) if years_text.isdigit() else 0
+            y_val = st.number_input("Years", min_value=0, step=1, key="ci_y")
         with col2:
-            months_text = st.text_input("Months", value="", key="ci_m")
-            m_val = int(months_text) if months_text.isdigit() else 0
+            m_val = st.number_input("Months", min_value=0, max_value=11, step=1, key="ci_m")
         with col3:
-            days_text = st.text_input("Days", value="", key="ci_d")
-            d_val = int(days_text) if days_text.isdigit() else 0
+            d_val = st.number_input("Days", min_value=0, max_value=30, step=1, key="ci_d")
+        # Manual duration inputs side by side (blank)
+        
+        
 
         total_days = y_val*365 + m_val*30 + d_val
     else:
