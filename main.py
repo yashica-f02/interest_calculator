@@ -1,8 +1,8 @@
 import streamlit as st
-from datetime import datetime, date
+from datetime import datetime
 import pandas as pd
 
-# ----------------------------
+# -----------------------------
 # Initialize session state
 # -----------------------------
 if 'records' not in st.session_state:
@@ -16,7 +16,7 @@ def save_record(calc_type, principal, rate, duration, interest, total, frequency
         'timestamp': datetime.now().strftime("%d/%m/%Y %H:%M"),
         'type': calc_type,
         'principal': f"₹{principal:.2f}",
-        'rate': f"{rate:.2f}%",
+        'rate': f"{rate}%",
         'duration': duration,
         'interest': f"₹{interest:.2f}",
         'total': f"₹{total:.2f}",
@@ -31,7 +31,7 @@ def days_to_ymd(total_days):
     remaining_days = total_days % 365
     months = remaining_days // 30
     days = remaining_days % 30
-    return int(days), int(months), int(years)
+    return  int(days), int(months), int(years)
 
 def display_result_table(duration, interest, total, frequency=None):
     data = {
@@ -43,23 +43,16 @@ def display_result_table(duration, interest, total, frequency=None):
     df = pd.DataFrame(data)
     st.table(df)
 
-def parse_input(val):
+def parse_number(input_str):
     try:
-        return float(val.strip()) if val.strip() != "" else None
-    except:
+        return float(input_str.strip()) if input_str.strip() != "" else 0.0
+    except ValueError:
         return None
-
-def get_current_date_str():
-    """Get current date in DD/MM/YYYY format"""
-    return datetime.now().strftime("%d/%m/%Y")
 
 # -----------------------------
 # App UI
 # -----------------------------
-st.title("Interest Calculator")
-st.caption("Clean✨. Fast⏩. Accurate💹")
-st.caption("FINANCIAL CALCULATIONS")
-st.markdown("---")
+st.title("💰 Interest Calculator")
 
 tab1, tab2, tab3 = st.tabs(["Simple Interest", "Compound Interest", "Records"])
 
@@ -69,69 +62,45 @@ tab1, tab2, tab3 = st.tabs(["Simple Interest", "Compound Interest", "Records"])
 with tab1:
     st.header("Simple Interest")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        P_text = st.text_input("Principal Amount (₹)", placeholder="₹")
-    with col2:
-        R_text = st.text_input("Rate of Interest (%)", placeholder="%")
+    P_text = st.text_input("Principal Amount ₹", value="")
+    R_text = st.text_input("Rate %", value="")
 
-    P = parse_input(P_text)
-    R = parse_input(R_text)
+    P = parse_number(P_text)
+    R = parse_number(R_text)
 
     duration_mode = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="si_mode")
-    
-    total_days = 0
+
     if duration_mode == "Manual (Y/M/D)":
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            y_val = st.text_input("Years", placeholder="Y")
-            y_val = int(y_val) if y_val and y_val.isdigit() else 0
-        with col2:
-            m_val = st.text_input("Months", placeholder="M")
-            m_val = int(m_val) if m_val and m_val.isdigit() else 0
-        with col3:
-            d_val = st.text_input("Days", placeholder="D")
-            d_val = int(d_val) if d_val and d_val.isdigit() else 0
+        years_text = st.text_input("Years", value="", key="si_y")
+        months_text = st.text_input("Months", value="", key="si_m")
+        days_text = st.text_input("Days", value="", key="si_d")
+
+        y_val = int(years_text) if years_text.isdigit() else 0
+        m_val = int(months_text) if months_text.isdigit() else 0
+        d_val = int(days_text) if days_text.isdigit() else 0
+
         total_days = y_val*365 + m_val*30 + d_val
     else:
-        # DD/MM/YYYY format for display with current date
-        current_date = get_current_date_str()
-        col1, col2 = st.columns(2)
-        with col1:
-            start_input = st.text_input("Start Date (DD/MM/YYYY)", placeholder=current_date, key="si_start_input")
-        with col2:
-            end_input = st.text_input("End Date (DD/MM/YYYY)", placeholder=current_date, key="si_end_input")
-        
-        # Parse DD/MM/YYYY format
-        try:
-            if start_input and end_input:
-                start_date = datetime.strptime(start_input, "%d/%m/%Y").date()
-                end_date = datetime.strptime(end_input, "%d/%m/%Y").date()
-                if end_date >= start_date:
-                    delta = end_date - start_date
-                    total_days = delta.days
-                else:
-                    st.error("End date must be after start date")
-                    total_days = 0
-            else:
-                total_days = 0
-        except:
-            st.error("Please enter valid dates in DD/MM/YYYY format")
-            total_days = 0
+        # show dates in DD/MM/YYYY format
+        start_date = st.date_input("Start Date", key="si_start", format="DD/MM/YYYY")
+        end_date = st.date_input("End Date", key="si_end", format="DD/MM/YYYY")
+        delta = end_date - start_date
+        total_days = delta.days if delta.days > 0 else 0
 
     per = st.radio("Rate Type", ["Per Year", "Per Month"], key="si_per")
 
-    if st.button("🚀 Calculate Simple Interest"):
-        if P is None or R is None or total_days <= 0:
+    if st.button("Calculate SI"):
+        if P is None or R is None or total_days <= 0 or P <= 0 or R < 0:
             st.error("Invalid input. Check all values.")
         else:
-            rate = R * 12 if per == "Per Month" else R
+            if per == "Per Month":
+                R = R * 12
             T_decimal = total_days / 365
-            interest = (P * rate * T_decimal) / 100
+            interest = (P * R * T_decimal) / 100
             total = P + interest
             y, m, d = days_to_ymd(total_days)
             duration_str = f"{y}Y {m}M {d}D"
-            save_record("Simple", P, rate, duration_str, interest, total)
+            save_record("Simple", P, R, duration_str, interest, total)
             display_result_table(duration_str, interest, total)
 
 # -----------------------------
@@ -140,72 +109,47 @@ with tab1:
 with tab2:
     st.header("Compound Interest")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        P_text = st.text_input("Principal Amount (₹)", placeholder="₹", key="ci_p")
-    with col2:
-        R_text = st.text_input("Rate of Interest (%)", placeholder="%", key="ci_r")
+    P_text = st.text_input("Principal Amount ₹", value="", key="ci_p")
+    R_text = st.text_input("Rate %", value="", key="ci_r")
 
-    P = parse_input(P_text)
-    R = parse_input(R_text)
+    P = parse_number(P_text)
+    R = parse_number(R_text)
 
     duration_mode_ci = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="ci_mode")
-    
-    total_days = 0
     if duration_mode_ci == "Manual (Y/M/D)":
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            y_val = st.text_input("Years", placeholder="Y", key="ci_y")
-            y_val = int(y_val) if y_val and y_val.isdigit() else 0
-        with col2:
-            m_val = st.text_input("Months", placeholder="M", key="ci_m")
-            m_val = int(m_val) if m_val and m_val.isdigit() else 0
-        with col3:
-            d_val = st.text_input("Days", placeholder="D", key="ci_d")
-            d_val = int(d_val) if d_val and d_val.isdigit() else 0
+        years_text = st.text_input("Years", value="", key="ci_y")
+        months_text = st.text_input("Months", value="", key="ci_m")
+        days_text = st.text_input("Days", value="", key="ci_d")
+
+        y_val = int(years_text) if years_text.isdigit() else 0
+        m_val = int(months_text) if months_text.isdigit() else 0
+        d_val = int(days_text) if days_text.isdigit() else 0
+
         total_days = y_val*365 + m_val*30 + d_val
     else:
-        # DD/MM/YYYY format for display with current date
-        current_date = get_current_date_str()
-        col1, col2 = st.columns(2)
-        with col1:
-            start_input = st.text_input("Start Date (DD/MM/YYYY)", placeholder=current_date, key="ci_start_input")
-        with col2:
-            end_input = st.text_input("End Date (DD/MM/YYYY)", placeholder=current_date, key="ci_end_input")
-        
-        # Parse DD/MM/YYYY format
-        try:
-            if start_input and end_input:
-                start_date = datetime.strptime(start_input, "%d/%m/%Y").date()
-                end_date = datetime.strptime(end_input, "%d/%m/%Y").date()
-                if end_date >= start_date:
-                    delta = end_date - start_date
-                    total_days = delta.days
-                else:
-                    st.error("End date must be after start date")
-                    total_days = 0
-            else:
-                total_days = 0
-        except:
-            st.error("Please enter valid dates in DD/MM/YYYY format")
-            total_days = 0
+        # show dates in DD/MM/YYYY format
+        start_date = st.date_input("Start Date", key="ci_start", format="DD/MM/YYYY")
+        end_date = st.date_input("End Date", key="ci_end", format="DD/MM/YYYY")
+        delta = end_date - start_date
+        total_days = delta.days if delta.days > 0 else 0
 
     per = st.radio("Rate Type", ["Per Year", "Per Month"], key="ci_per")
     freq = st.selectbox("Compounding Frequency", ["Yearly","Half-Yearly","Quarterly","Monthly","Daily"], key="ci_freq")
     freq_map = {"Yearly":1, "Half-Yearly":2, "Quarterly":4, "Monthly":12, "Daily":365}
     n_val = freq_map[freq]
 
-    if st.button("🚀 Calculate Compound Interest"):
-        if P is None or R is None or total_days <= 0:
+    if st.button("Calculate CI"):
+        if P is None or R is None or total_days <= 0 or P <= 0 or R < 0:
             st.error("Invalid input. Check all values.")
         else:
-            rate = R * 12 if per == "Per Month" else R
+            if per == "Per Month":
+                R = R * 12
             T_decimal = total_days / 365
-            amount = P * (1 + rate/(100*n_val))**(n_val*T_decimal)
+            amount = P * (1 + R/(100*n_val))**(n_val*T_decimal)
             interest = amount - P
             y, m, d = days_to_ymd(total_days)
             duration_str = f"{y}Y {m}M {d}D"
-            save_record("Compound", P, rate, duration_str, interest, amount, frequency=freq)
+            save_record("Compound", P, R, duration_str, interest, amount, frequency=freq)
             display_result_table(duration_str, interest, amount, frequency=freq)
 
 # -----------------------------
@@ -231,5 +175,5 @@ with tab3:
             }
             df = pd.DataFrame(data)
             st.table(df)
-
-        
+ 
+      
