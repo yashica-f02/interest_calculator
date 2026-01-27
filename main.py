@@ -52,7 +52,10 @@ def parse_number(input_str):
 # -----------------------------
 # App UI
 # -----------------------------
-st.title("💰 Interest Calculator")
+st.title("🪙Interest Calculator")
+st.caption("Clean✨. Fast⏩. Accurate💹")
+st.caption("FINANCIAL CALCULATIONS")
+st.markdown("---")
 
 tab1, tab2, tab3 = st.tabs(["Simple Interest", "Compound Interest", "Records"])
 
@@ -62,8 +65,11 @@ tab1, tab2, tab3 = st.tabs(["Simple Interest", "Compound Interest", "Records"])
 with tab1:
     st.header("Simple Interest")
 
-    P_text = st.text_input("Principal Amount ₹", value="")
-    R_text = st.text_input("Rate %", value="")
+    col1, col2 = st.columns(2)
+    with col1:
+        P_text = st.text_input("Principal Amount (₹)", placeholder="₹")
+    with col2:
+        R_text = st.text_input("Rate of Interest (%)", placeholder="%")
 
     P = parse_number(P_text)
     R = parse_number(R_text)
@@ -71,15 +77,19 @@ with tab1:
     duration_mode = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="si_mode")
 
     if duration_mode == "Manual (Y/M/D)":
-        years_text = st.text_input("Years", value="", key="si_y")
-        months_text = st.text_input("Months", value="", key="si_m")
-        days_text = st.text_input("Days", value="", key="si_d")
-
-        y_val = int(years_text) if years_text.isdigit() else 0
-        m_val = int(months_text) if months_text.isdigit() else 0
-        d_val = int(days_text) if days_text.isdigit() else 0
-
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            y_val = st.text_input("Years", placeholder="Y")
+            y_val = int(y_val) if y_val and y_val.isdigit() else 0
+        with col2:
+            m_val = st.text_input("Months", placeholder="M")
+            m_val = int(m_val) if m_val and m_val.isdigit() else 0
+        with col3:
+            d_val = st.text_input("Days", placeholder="D")
+            d_val = int(d_val) if d_val and d_val.isdigit() else 0
         total_days = y_val*365 + m_val*30 + d_val
+
+        
     else:
         # show dates in DD/MM/YYYY format
         start_date = st.date_input("Start Date", key="si_start", format="DD/MM/YYYY")
@@ -89,7 +99,7 @@ with tab1:
 
     per = st.radio("Rate Type", ["Per Year", "Per Month"], key="si_per")
 
-    if st.button("Calculate SI"):
+    if st.button("🚀 Calculate Simple Interest"):
         if P is None or R is None or total_days <= 0 or P <= 0 or R < 0:
             st.error("Invalid input. Check all values.")
         else:
@@ -109,22 +119,27 @@ with tab1:
 with tab2:
     st.header("Compound Interest")
 
-    P_text = st.text_input("Principal Amount ₹", value="", key="ci_p")
-    R_text = st.text_input("Rate %", value="", key="ci_r")
+    col1, col2 = st.columns(2)
+    with col1:
+        P_text = st.text_input("Principal Amount (₹)", placeholder="₹", key="ci_p")
+    with col2:
+        R_text = st.text_input("Rate of Interest (%)", placeholder="%", key="ci_r")
 
     P = parse_number(P_text)
     R = parse_number(R_text)
 
     duration_mode_ci = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="ci_mode")
     if duration_mode_ci == "Manual (Y/M/D)":
-        years_text = st.text_input("Years", value="", key="ci_y")
-        months_text = st.text_input("Months", value="", key="ci_m")
-        days_text = st.text_input("Days", value="", key="ci_d")
-
-        y_val = int(years_text) if years_text.isdigit() else 0
-        m_val = int(months_text) if months_text.isdigit() else 0
-        d_val = int(days_text) if days_text.isdigit() else 0
-
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            y_val = st.text_input("Years", placeholder="Y", key="ci_y")
+            y_val = int(y_val) if y_val and y_val.isdigit() else 0
+        with col2:
+            m_val = st.text_input("Months", placeholder="M", key="ci_m")
+            m_val = int(m_val) if m_val and m_val.isdigit() else 0
+        with col3:
+            d_val = st.text_input("Days", placeholder="D", key="ci_d")
+            d_val = int(d_val) if d_val and d_val.isdigit() else 0
         total_days = y_val*365 + m_val*30 + d_val
     else:
         # show dates in DD/MM/YYYY format
@@ -138,7 +153,7 @@ with tab2:
     freq_map = {"Yearly":1, "Half-Yearly":2, "Quarterly":4, "Monthly":12, "Daily":365}
     n_val = freq_map[freq]
 
-    if st.button("Calculate CI"):
+    if st.button("🚀 Calculate Compound Interest"):
         if P is None or R is None or total_days <= 0 or P <= 0 or R < 0:
             st.error("Invalid input. Check all values.")
         else:
