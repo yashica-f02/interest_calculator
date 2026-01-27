@@ -76,15 +76,7 @@ with tab1:
 
     duration_mode = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="si_mode")
 
-    if :# show dates in DD/MM/YYYY format
-        start_date = st.date_input("Start Date", key="si_start", format="DD/MM/YYYY")
-        end_date = st.date_input("End Date", key="si_end", format="DD/MM/YYYY")
-        delta = end_date - start_date
-        total_days = delta.days if delta.days > 0 else 0
-
-        
-    else:
-        if duration_mode == "Manual (Y/M/D)":
+    if duration_mode == "Manual (Y/M/D)":
         col1, col2, col3 = st.columns(3)
         with col1:
             y_val = st.text_input("Years", placeholder="Y")
@@ -96,6 +88,17 @@ with tab1:
             d_val = st.text_input("Days", placeholder="D")
             d_val = int(d_val) if d_val and d_val.isdigit() else 0
         total_days = y_val*365 + m_val*30 + d_val
+
+        
+    else:
+        # show dates in DD/MM/YYYY format
+        start_date = st.date_input("Start Date", key="si_start", format="DD/MM/YYYY")
+        end_date = st.date_input("End Date", key="si_end", format="DD/MM/YYYY")
+        delta = end_date - start_date
+        total_days = delta.days if delta.days > 0 else 0
+
+        
+        
         
 
     per = st.radio("Rate Type", ["Per Year", "Per Month"], key="si_per")
