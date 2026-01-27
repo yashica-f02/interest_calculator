@@ -52,7 +52,7 @@ def parse_number(input_str):
 # -----------------------------
 # App UI
 # -----------------------------
-st.title("💰 INTEREST CALCULATOR")
+st.title("🫰Interest Calculator")
 st.caption("Clean✨. Fast⏩. ")
 st.caption("ACCURATE FINANCIAL CALCULATIONS")
 st.markdown("---")
@@ -72,8 +72,9 @@ with tab1:
         R_text = st.text_input("Rate of Interest (%)", value="")
 
 
-    P = parse_number(P_text)
-    R = parse_number(R_text)
+    P = st.number_input("Principal Amount (₹)", min_value=0.0, step=100.0)
+    R = st.number_input("Rate of Interest (%)", min_value=0.0, step=0.1)
+
 
     duration_mode = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="si_mode")
 
