@@ -171,7 +171,7 @@ with tab3:
                 "Duration": [rec['duration']],
                 "Frequency": [rec['frequency']],
                 "Interest": [rec['interest']],
-                "Total Amount": [rec['total']
+                "Total Amount": [rec['total']]
             }
             df = pd.DataFrame(data)
             st.table(df)
