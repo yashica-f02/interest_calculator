@@ -79,13 +79,14 @@ with tab1:
     duration_mode = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="si_mode")
 
     if duration_mode == "Manual (Y/M/D)":
-        years_text = st.text_input("Years", value="", key="si_y")
-        months_text = st.text_input("Months", value="", key="si_m")
-        days_text = st.text_input("Days", value="", key="si_d")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            y_val = st.number_input("Years", min_value=0, step=1, key="si_y")
+        with col2:
+            m_val = st.number_input("Months", min_value=0, max_value=11, step=1, key="si_m")
+        with col3:
+            d_val = st.number_input("Days", min_value=0, max_value=30, step=1, key="si_d")
 
-        y_val = int(years_text) if years_text.isdigit() else 0
-        m_val = int(months_text) if months_text.isdigit() else 0
-        d_val = int(days_text) if days_text.isdigit() else 0
 
         total_days = y_val*365 + m_val*30 + d_val
     else:
@@ -96,8 +97,14 @@ with tab1:
         total_days = delta.days if delta.days > 0 else 0
 
     per = st.radio("Rate Type", ["Per Year", "Per Month"], key="si_per")
+    
 
-    if st.button("Calculate SI"):
+    st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
+    calculate = st.button("🚀 Calculate Simple Interest")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    if calculate:
+
         if P is None or R is None or total_days <= 0 or P <= 0 or R < 0:
             st.error("Invalid input. Check all values.")
         else:
@@ -117,21 +124,23 @@ with tab1:
 with tab2:
     st.header("Compound Interest")
 
-    P_text = st.text_input("Principal Amount ₹", value="", key="ci_p")
-    R_text = st.text_input("Rate %", value="", key="ci_r")
+    col1, col2 = st.columns(2)
+    with col1:
+        P = st.number_input("Principal Amount (₹)", min_value=0.0, step=100.0, format="%.2f", key="ci_p")
+    with col2:
+        R = st.number_input("Rate of Interest (%)", min_value=0.0, step=0.1, format="%.2f", key="ci_r")
 
-    P = parse_number(P_text)
-    R = parse_number(R_text)
 
     duration_mode_ci = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="ci_mode")
     if duration_mode_ci == "Manual (Y/M/D)":
-        years_text = st.text_input("Years", value="", key="ci_y")
-        months_text = st.text_input("Months", value="", key="ci_m")
-        days_text = st.text_input("Days", value="", key="ci_d")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            y_val = st.number_input("Years", min_value=0, step=1, key="ci_y")
+        with col2:
+            m_val = st.number_input("Months", min_value=0, max_value=11, step=1, key="ci_m")
+        with col3:
+            d_val = st.number_input("Days", min_value=0, max_value=30, step=1, key="ci_d")
 
-        y_val = int(years_text) if years_text.isdigit() else 0
-        m_val = int(months_text) if months_text.isdigit() else 0
-        d_val = int(days_text) if days_text.isdigit() else 0
 
         total_days = y_val*365 + m_val*30 + d_val
     else:
@@ -146,7 +155,12 @@ with tab2:
     freq_map = {"Yearly":1, "Half-Yearly":2, "Quarterly":4, "Monthly":12, "Daily":365}
     n_val = freq_map[freq]
 
-    if st.button("Calculate CI"):
+    st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
+    calculate = st.button("🚀 Calculate Compound Interest")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    if calculate:
+
         if P is None or R is None or total_days <= 0 or P <= 0 or R < 0:
             st.error("Invalid input. Check all values.")
         else:
