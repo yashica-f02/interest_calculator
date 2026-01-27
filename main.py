@@ -54,7 +54,7 @@ def parse_input(val):
 # -----------------------------
 st.title("Interest Calculator")
 st.caption("Clean✨. Fast⏩. Accurate💹")
-st.caption("Financial Calculations")
+st.caption("FINANCIAL CALCULATIONS")
 st.markdown("---")
 
 tab1, tab2, tab3 = st.tabs(["Simple Interest", "Compound Interest", "Records"])
