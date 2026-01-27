@@ -16,7 +16,7 @@ def save_record(calc_type, principal, rate, duration, interest, total, frequency
         'timestamp': datetime.now().strftime("%d/%m/%Y %H:%M"),
         'type': calc_type,
         'principal': f"₹{principal:.2f}",
-        'rate': f"{rate}%",
+        'rate': f"{rate}%%",
         'duration': duration,
         'interest': f"₹{interest:.2f}",
         'total': f"₹{total:.2f}",
@@ -81,8 +81,9 @@ with tab1:
 
         total_days = y_val*365 + m_val*30 + d_val
     else:
-        start_date = st.date_input("Start Date", key="si_start")
-        end_date = st.date_input("End Date", key="si_end")
+        # show dates in DD/MM/YYYY format
+        start_date = st.date_input("Start Date", key="si_start", format="DD/MM/YYYY")
+        end_date = st.date_input("End Date", key="si_end", format="DD/MM/YYYY")
         delta = end_date - start_date
         total_days = delta.days if delta.days > 0 else 0
 
@@ -126,8 +127,9 @@ with tab2:
 
         total_days = y_val*365 + m_val*30 + d_val
     else:
-        start_date = st.date_input("Start Date", key="ci_start")
-        end_date = st.date_input("End Date", key="ci_end")
+        # show dates in DD/MM/YYYY format
+        start_date = st.date_input("Start Date", key="ci_start", format="DD/MM/YYYY")
+        end_date = st.date_input("End Date", key="ci_end", format="DD/MM/YYYY")
         delta = end_date - start_date
         total_days = delta.days if delta.days > 0 else 0
 
@@ -169,8 +171,7 @@ with tab3:
                 "Duration": [rec['duration']],
                 "Frequency": [rec['frequency']],
                 "Interest": [rec['interest']],
-                "Total Amount": [rec['total']]
+                "Total Amount": [rec['total"]
             }
             df = pd.DataFrame(data)
             st.table(df)
-
