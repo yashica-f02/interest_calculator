@@ -1,5 +1,5 @@
 import streamlit as st
-from datetime import datetime
+from datetime import datetime, date
 import pandas as pd
 
 # ----------------------------
@@ -49,6 +49,10 @@ def parse_input(val):
     except:
         return None
 
+def get_current_date_str():
+    """Get current date in DD/MM/YYYY format"""
+    return datetime.now().strftime("%d/%m/%Y")
+
 # -----------------------------
 # App UI
 # -----------------------------
@@ -75,6 +79,8 @@ with tab1:
     R = parse_input(R_text)
 
     duration_mode = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="si_mode")
+    
+    total_days = 0
     if duration_mode == "Manual (Y/M/D)":
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -88,10 +94,30 @@ with tab1:
             d_val = int(d_val) if d_val and d_val.isdigit() else 0
         total_days = y_val*365 + m_val*30 + d_val
     else:
-        start_date = st.date_input("Start Date", format="dd/mm/yyyy", key="si_start")
-        end_date = st.date_input("End Date", format="dd/mm/yyyy", key="si_end")
-        delta = end_date - start_date
-        total_days = delta.days if delta.days > 0 else 0
+        # DD/MM/YYYY format for display with current date
+        current_date = get_current_date_str()
+        col1, col2 = st.columns(2)
+        with col1:
+            start_input = st.text_input("Start Date (DD/MM/YYYY)", placeholder=current_date, key="si_start_input")
+        with col2:
+            end_input = st.text_input("End Date (DD/MM/YYYY)", placeholder=current_date, key="si_end_input")
+        
+        # Parse DD/MM/YYYY format
+        try:
+            if start_input and end_input:
+                start_date = datetime.strptime(start_input, "%d/%m/%Y").date()
+                end_date = datetime.strptime(end_input, "%d/%m/%Y").date()
+                if end_date >= start_date:
+                    delta = end_date - start_date
+                    total_days = delta.days
+                else:
+                    st.error("End date must be after start date")
+                    total_days = 0
+            else:
+                total_days = 0
+        except:
+            st.error("Please enter valid dates in DD/MM/YYYY format")
+            total_days = 0
 
     per = st.radio("Rate Type", ["Per Year", "Per Month"], key="si_per")
 
@@ -124,6 +150,8 @@ with tab2:
     R = parse_input(R_text)
 
     duration_mode_ci = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="ci_mode")
+    
+    total_days = 0
     if duration_mode_ci == "Manual (Y/M/D)":
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -137,10 +165,30 @@ with tab2:
             d_val = int(d_val) if d_val and d_val.isdigit() else 0
         total_days = y_val*365 + m_val*30 + d_val
     else:
-        start_date = st.date_input("Start Date", format="dd/mm/yyyy", key="ci_start")
-        end_date = st.date_input("End Date", format="dd/mm/yyyy", key="ci_end")
-        delta = end_date - start_date
-        total_days = delta.days if delta.days > 0 else 0
+        # DD/MM/YYYY format for display with current date
+        current_date = get_current_date_str()
+        col1, col2 = st.columns(2)
+        with col1:
+            start_input = st.text_input("Start Date (DD/MM/YYYY)", placeholder=current_date, key="ci_start_input")
+        with col2:
+            end_input = st.text_input("End Date (DD/MM/YYYY)", placeholder=current_date, key="ci_end_input")
+        
+        # Parse DD/MM/YYYY format
+        try:
+            if start_input and end_input:
+                start_date = datetime.strptime(start_input, "%d/%m/%Y").date()
+                end_date = datetime.strptime(end_input, "%d/%m/%Y").date()
+                if end_date >= start_date:
+                    delta = end_date - start_date
+                    total_days = delta.days
+                else:
+                    st.error("End date must be after start date")
+                    total_days = 0
+            else:
+                total_days = 0
+        except:
+            st.error("Please enter valid dates in DD/MM/YYYY format")
+            total_days = 0
 
     per = st.radio("Rate Type", ["Per Year", "Per Month"], key="ci_per")
     freq = st.selectbox("Compounding Frequency", ["Yearly","Half-Yearly","Quarterly","Monthly","Daily"], key="ci_freq")
@@ -183,3 +231,5 @@ with tab3:
             }
             df = pd.DataFrame(data)
             st.table(df)
+
+        
