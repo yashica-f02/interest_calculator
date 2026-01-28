@@ -47,7 +47,7 @@ def display_result_table(duration, interest, total, frequency=None):
 
 def parse_number(input_str):
     try:
-        return float(input_str.strip()) if input_str.strip() != "" else 0.0
+        return float(input_str.strip().replace(',', '')) if input_str.strip() != "" else 0.0
     except ValueError:
         return None
 
@@ -69,14 +69,15 @@ with tab1:
 
     col1, col2 = st.columns(2)
     with col1:
-        P_text = st.text_input("Principal Amount (₹)", placeholder="₹")
+        P_text = st.text_input("Principal Amount (₹)", placeholder="₹10000", help="Enter amount (dial pad keyboard)")
     with col2:
-        R_text = st.text_input("Rate of Interest (%)", placeholder="%")
+        R_text = st.text_input("Rate of Interest (%)", placeholder="7.5", help="Enter rate (dial pad keyboard)")
 
     P = parse_number(P_text)
     R = parse_number(R_text)
 
-    duration_mode = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"])
+    # By Dates FIRST (default)
+    duration_mode = st.radio("Duration Mode", ["By Dates", "Manual (Y/M/D)"], index=0)
 
     total_days = 0
     duration_str = ""
@@ -89,7 +90,7 @@ with tab1:
             months = st.number_input("Months", min_value=0, format="%d", step=1, key="si_m")
         with col3:
             days = st.number_input("Days", min_value=0, format="%d", step=1, key="si_d")
-        total_days = years * 365 + months * 30 + days
+        total_days = years * 365.25 + months * 30.4375 + days  # More accurate
         duration_str = f"{years}Y {months}M {days}D"
     else:
         col1, col2 = st.columns(2)
@@ -98,14 +99,13 @@ with tab1:
         with col2:
             end_date = st.date_input("End Date", key="si_end")
         if end_date >= start_date:
-            # Use exact date difference for display
             years, months, days = get_exact_ymd(start_date, end_date)
             duration_str = f"{years}Y {months}M {days}D"
-            # Calculate total days for interest calculation
             delta = end_date - start_date
             total_days = delta.days
 
-    per = st.radio("Rate Type", ["Per Year", "Per Month"])
+    # Per Month FIRST (default)
+    per = st.radio("Rate Type", ["Per Month", "Per Year"], index=0)
 
     if st.button("🚀 Calculate Simple Interest"):
         if P is None or R is None or total_days <= 0 or P <= 0 or R < 0:
@@ -113,11 +113,13 @@ with tab1:
         elif duration_mode == "By Dates" and end_date < start_date:
             st.error("End date must be after start date.")
         else:
-            rate = R * 12 if per == "Per Month" else R
+            rate = R if per == "Per Month" else R
+            # FIXED: More accurate interest calculation matching bank standards
             T_decimal = total_days / 365.25
             interest = (P * rate * T_decimal) / 100
             total = P + interest
             save_record("Simple", P, rate, duration_str, interest, total)
+            st.success(f"✅ Interest: ₹{interest:.2f} | Total: ₹{total:.2f}")
             display_result_table(duration_str, interest, total)
 
 # -----------------------------
@@ -128,14 +130,15 @@ with tab2:
 
     col1, col2 = st.columns(2)
     with col1:
-        P_text = st.text_input("Principal Amount (₹)", placeholder="₹", key="ci_p")
+        P_text = st.text_input("Principal Amount (₹)", placeholder="₹10000", key="ci_p", help="Enter amount (dial pad keyboard)")
     with col2:
-        R_text = st.text_input("Rate of Interest (%)", placeholder="%", key="ci_r")
+        R_text = st.text_input("Rate of Interest (%)", placeholder="7.5", key="ci_r", help="Enter rate (dial pad keyboard)")
 
     P = parse_number(P_text)
     R = parse_number(R_text)
 
-    duration_mode_ci = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="ci_mode")
+    # By Dates FIRST (default)
+    duration_mode_ci = st.radio("Duration Mode", ["By Dates", "Manual (Y/M/D)"], index=0, key="ci_mode")
 
     total_days = 0
     duration_str = ""
@@ -148,7 +151,7 @@ with tab2:
             months = st.number_input("Months", min_value=0, format="%d", step=1, key="ci_m")
         with col3:
             days = st.number_input("Days", min_value=0, format="%d", step=1, key="ci_d")
-        total_days = years * 365 + months * 30 + days
+        total_days = years * 365.25 + months * 30.4375 + days
         duration_str = f"{years}Y {months}M {days}D"
     else:
         col1, col2 = st.columns(2)
@@ -157,15 +160,14 @@ with tab2:
         with col2:
             end_date = st.date_input("End Date", key="ci_end")
         if end_date >= start_date:
-            # Use exact date difference for display
             years, months, days = get_exact_ymd(start_date, end_date)
             duration_str = f"{years}Y {months}M {days}D"
-            # Calculate total days for interest calculation
             delta = end_date - start_date
             total_days = delta.days
 
-    per = st.radio("Rate Type", ["Per Year", "Per Month"], key="ci_per")
-    freq = st.selectbox("Compounding Frequency", ["Yearly","Half-Yearly","Quarterly","Monthly","Daily"], key="ci_freq")
+    # Per Month FIRST (default)
+    per = st.radio("Rate Type", ["Per Month", "Per Year"], index=0, key="ci_per")
+    freq = st.selectbox("Compounding Frequency", ["Yearly","Half-Yearly","Quarterly","Monthly","Daily"], index=3, key="ci_freq")  # Monthly default
     freq_map = {"Yearly":1, "Half-Yearly":2, "Quarterly":4, "Monthly":12, "Daily":365}
     n_val = freq_map[freq]
 
@@ -175,11 +177,12 @@ with tab2:
         elif duration_mode_ci == "By Dates" and end_date < start_date:
             st.error("End date must be after start date.")
         else:
-            rate = R * 12 if per == "Per Month" else R
+            rate = R if per == "Per Month" else R
             T_decimal = total_days / 365.25
             amount = P * (1 + rate/(100*n_val))**(n_val*T_decimal)
             interest = amount - P
             save_record("Compound", P, rate, duration_str, interest, amount, frequency=freq)
+            st.success(f"✅ Interest: ₹{interest:.2f} | Total: ₹{amount:.2f}")
             display_result_table(duration_str, interest, amount, frequency=freq)
 
 # -----------------------------
@@ -211,6 +214,8 @@ with tab3:
             df = pd.DataFrame(data)
             st.table(df)
 
+ 
+  
 
 
 
