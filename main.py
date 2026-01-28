@@ -167,7 +167,7 @@ with tab2:
             amount = P * (1 + R/(100*n_val))**(n_val*T_decimal)
             interest = amount - P
             y, m, d = days_to_ymd(total_days)
-            duration_str = f"{y}Y {m}M {d}D"
+            duration_str = f"{d}D {m}M {y}Y"
             save_record("Compound", P, R, duration_str, interest, amount, frequency=freq)
             display_result_table(duration_str, interest, amount, frequency=freq)
 
