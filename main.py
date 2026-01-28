@@ -65,60 +65,52 @@ tab1, tab2, tab3 = st.tabs(["Simple Interest", "Compound Interest", "Records"])
 with tab1:
     st.header("Simple Interest")
 
-    # Initialize session state for Simple Interest duration
-    if 'si_duration' not in st.session_state:
-        st.session_state.si_duration = {'years': 0, 'months': 0, 'days': 0}
-
     col1, col2 = st.columns(2)
     with col1:
-        P_text = st.text_input("Principal Amount (₹)", placeholder="₹", key="si_p")
+        P_text = st.text_input("Principal Amount (₹)", placeholder="₹")
     with col2:
-        R_text = st.text_input("Rate of Interest (%)", placeholder="%", key="si_r")
+        R_text = st.text_input("Rate of Interest (%)", placeholder="%")
 
     P = parse_number(P_text)
     R = parse_number(R_text)
 
-    duration_mode = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="si_mode")
+    duration_mode = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"])
 
     total_days = 0
+    duration_str = ""
+    
     if duration_mode == "Manual (Y/M/D)":
         col1, col2, col3 = st.columns(3)
         with col1:
-            y_val = st.number_input("Years", min_value=0, value=st.session_state.si_duration['years'], 
-                                  key="si_y_input", step=1)
-            st.session_state.si_duration['years'] = int(y_val)
+            years = st.number_input("Years", min_value=0, step=1, key="si_years")
         with col2:
-            m_val = st.number_input("Months", min_value=0, value=st.session_state.si_duration['months'], 
-                                  key="si_m_input", step=1)
-            st.session_state.si_duration['months'] = int(m_val)
+            months = st.number_input("Months", min_value=0, step=1, key="si_months")
         with col3:
-            d_val = st.number_input("Days", min_value=0, value=st.session_state.si_duration['days'], 
-                                  key="si_d_input", step=1)
-            st.session_state.si_duration['days'] = int(d_val)
-        total_days = (st.session_state.si_duration['years'] * 365 + 
-                     st.session_state.si_duration['months'] * 30 + 
-                     st.session_state.si_duration['days'])
+            days = st.number_input("Days", min_value=0, step=1, key="si_days")
+        total_days = years * 365 + months * 30 + days
+        duration_str = f"{years}Y {months}M {days}D"
     else:
-        start_date = st.date_input("Start Date", key="si_start")
-        end_date = st.date_input("End Date", key="si_end")
+        start_date = st.date_input("Start Date", key="si_start_date")
+        end_date = st.date_input("End Date", key="si_end_date")
         if end_date > start_date:
             delta = end_date - start_date
             total_days = delta.days
-
-    per = st.radio("Rate Type", ["Per Year", "Per Month"], key="si_per")
-
-    if st.button("🚀 Calculate Simple Interest", key="si_calc"):
-        if P is None or R is None or total_days <= 0 or P <= 0 or R < 0:
-            st.error("Invalid input. Check all values.")
-        else:
-            if per == "Per Month":
-                R = R * 12
-            T_decimal = total_days / 365
-            interest = (P * R * T_decimal) / 100
-            total = P + interest
             days, months, years = days_to_ymd(total_days)
             duration_str = f"{years}Y {months}M {days}D"
-            save_record("Simple", P, R, duration_str, interest, total)
+
+    per = st.radio("Rate Type", ["Per Year", "Per Month"])
+
+    if st.button("🚀 Calculate Simple Interest"):
+        if P is None or R is None or total_days <= 0 or P <= 0 or R < 0:
+            st.error("Invalid input. Check all values.")
+        elif duration_mode == "By Dates" and end_date <= start_date:
+            st.error("End date must be after start date.")
+        else:
+            rate = R * 12 if per == "Per Month" else R
+            T_decimal = total_days / 365
+            interest = (P * rate * T_decimal) / 100
+            total = P + interest
+            save_record("Simple", P, rate, duration_str, interest, total)
             display_result_table(duration_str, interest, total)
 
 # -----------------------------
@@ -126,10 +118,6 @@ with tab1:
 # -----------------------------
 with tab2:
     st.header("Compound Interest")
-
-    # Initialize session state for Compound Interest duration
-    if 'ci_duration' not in st.session_state:
-        st.session_state.ci_duration = {'years': 0, 'months': 0, 'days': 0}
 
     col1, col2 = st.columns(2)
     with col1:
@@ -141,49 +129,45 @@ with tab2:
     R = parse_number(R_text)
 
     duration_mode_ci = st.radio("Duration Mode", ["Manual (Y/M/D)", "By Dates"], key="ci_mode")
-    
+
     total_days = 0
+    duration_str = ""
+    
     if duration_mode_ci == "Manual (Y/M/D)":
         col1, col2, col3 = st.columns(3)
         with col1:
-            y_val = st.number_input("Years", min_value=0, value=st.session_state.ci_duration['years'], 
-                                  key="ci_y_input", step=1)
-            st.session_state.ci_duration['years'] = int(y_val)
+            years = st.number_input("Years", min_value=0, step=1, key="ci_years")
         with col2:
-            m_val = st.number_input("Months", min_value=0, value=st.session_state.ci_duration['months'], 
-                                  key="ci_m_input", step=1)
-            st.session_state.ci_duration['months'] = int(m_val)
+            months = st.number_input("Months", min_value=0, step=1, key="ci_months")
         with col3:
-            d_val = st.number_input("Days", min_value=0, value=st.session_state.ci_duration['days'], 
-                                  key="ci_d_input", step=1)
-            st.session_state.ci_duration['days'] = int(d_val)
-        total_days = (st.session_state.ci_duration['years'] * 365 + 
-                     st.session_state.ci_duration['months'] * 30 + 
-                     st.session_state.ci_duration['days'])
+            days = st.number_input("Days", min_value=0, step=1, key="ci_days")
+        total_days = years * 365 + months * 30 + days
+        duration_str = f"{years}Y {months}M {days}D"
     else:
-        start_date = st.date_input("Start Date", key="ci_start")
-        end_date = st.date_input("End Date", key="ci_end")
+        start_date = st.date_input("Start Date", key="ci_start_date")
+        end_date = st.date_input("End Date", key="ci_end_date")
         if end_date > start_date:
             delta = end_date - start_date
             total_days = delta.days
+            days, months, years = days_to_ymd(total_days)
+            duration_str = f"{years}Y {months}M {days}D"
 
     per = st.radio("Rate Type", ["Per Year", "Per Month"], key="ci_per")
-    freq = st.selectbox("Compounding Frequency", ["Yearly","Half-Yearly","Quarterly","Monthly","Daily"], key="ci_freq")
+    freq = st.selectbox("Compounding Frequency", ["Yearly","Half-Yearly","Quarterly","Monthly","Daily"])
     freq_map = {"Yearly":1, "Half-Yearly":2, "Quarterly":4, "Monthly":12, "Daily":365}
     n_val = freq_map[freq]
 
-    if st.button("🚀 Calculate Compound Interest", key="ci_calc"):
+    if st.button("🚀 Calculate Compound Interest"):
         if P is None or R is None or total_days <= 0 or P <= 0 or R < 0:
             st.error("Invalid input. Check all values.")
+        elif duration_mode_ci == "By Dates" and end_date <= start_date:
+            st.error("End date must be after start date.")
         else:
-            if per == "Per Month":
-                R = R * 12
+            rate = R * 12 if per == "Per Month" else R
             T_decimal = total_days / 365
-            amount = P * (1 + R/(100*n_val))**(n_val*T_decimal)
+            amount = P * (1 + rate/(100*n_val))**(n_val*T_decimal)
             interest = amount - P
-            days, months, years = days_to_ymd(total_days)
-            duration_str = f"{years}Y {months}M {days}D"
-            save_record("Compound", P, R, duration_str, interest, amount, frequency=freq)
+            save_record("Compound", P, rate, duration_str, interest, amount, frequency=freq)
             display_result_table(duration_str, interest, amount, frequency=freq)
 
 # -----------------------------
@@ -191,7 +175,7 @@ with tab2:
 # -----------------------------
 with tab3:
     st.header("Calculation History")
-    if st.button("Clear All Records", key="clear_records"):
+    if st.button("Clear All Records"):
         st.session_state.records = []
         st.rerun()
     
