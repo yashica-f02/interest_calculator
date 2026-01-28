@@ -1,6 +1,7 @@
 import streamlit as st
 from datetime import datetime
 import pandas as pd
+from dateutil.relativedelta import relativedelta
 
 # -----------------------------
 # Initialize session state
@@ -26,20 +27,13 @@ def save_record(calc_type, principal, rate, duration, interest, total, frequency
     if len(st.session_state.records) > 50:
         st.session_state.records = st.session_state.records[:50]
 
-def days_to_ymd(total_days):
-    """Fixed conversion - handles edge cases properly"""
-    if total_days < 30:
-        return total_days, 0, 0
-    elif total_days < 365:
-        months = total_days // 30
-        days = total_days % 30
-        return days, months, 0
-    else:
-        years = total_days // 365
-        remaining = total_days % 365
-        months = remaining // 30
-        days = remaining % 30
-        return days, months, years
+def get_exact_ymd(start_date, end_date):
+    """Calculate exact years, months, days using relativedelta"""
+    delta = relativedelta(end_date, start_date)
+    years = delta.years
+    months = delta.months
+    days = delta.days
+    return years, months, days
 
 def display_result_table(duration, interest, total, frequency=None):
     data = {
@@ -104,10 +98,12 @@ with tab1:
         with col2:
             end_date = st.date_input("End Date", key="si_end")
         if end_date >= start_date:
+            # Use exact date difference for display
+            years, months, days = get_exact_ymd(start_date, end_date)
+            duration_str = f"{years}Y {months}M {days}D"
+            # Calculate total days for interest calculation
             delta = end_date - start_date
-            total_days = delta.days  # This gives EXACT days between dates
-            days_val, months_val, years_val = days_to_ymd(total_days)
-            duration_str = f"{years_val}Y {months_val}M {days_val}D"
+            total_days = delta.days
 
     per = st.radio("Rate Type", ["Per Year", "Per Month"])
 
@@ -118,7 +114,7 @@ with tab1:
             st.error("End date must be after start date.")
         else:
             rate = R * 12 if per == "Per Month" else R
-            T_decimal = total_days / 365.25  # Use 365.25 for leap year accuracy
+            T_decimal = total_days / 365.25
             interest = (P * rate * T_decimal) / 100
             total = P + interest
             save_record("Simple", P, rate, duration_str, interest, total)
@@ -161,10 +157,12 @@ with tab2:
         with col2:
             end_date = st.date_input("End Date", key="ci_end")
         if end_date >= start_date:
+            # Use exact date difference for display
+            years, months, days = get_exact_ymd(start_date, end_date)
+            duration_str = f"{years}Y {months}M {days}D"
+            # Calculate total days for interest calculation
             delta = end_date - start_date
             total_days = delta.days
-            days_val, months_val, years_val = days_to_ymd(total_days)
-            duration_str = f"{years_val}Y {months_val}M {days_val}D"
 
     per = st.radio("Rate Type", ["Per Year", "Per Month"], key="ci_per")
     freq = st.selectbox("Compounding Frequency", ["Yearly","Half-Yearly","Quarterly","Monthly","Daily"], key="ci_freq")
@@ -178,7 +176,7 @@ with tab2:
             st.error("End date must be after start date.")
         else:
             rate = R * 12 if per == "Per Month" else R
-            T_decimal = total_days / 365.25  # Use 365.25 for leap year accuracy
+            T_decimal = total_days / 365.25
             amount = P * (1 + rate/(100*n_val))**(n_val*T_decimal)
             interest = amount - P
             save_record("Compound", P, rate, duration_str, interest, amount, frequency=freq)
@@ -198,7 +196,6 @@ with tab3:
     if not st.session_state.records:
         st.info("No calculations yet. Start calculating to see history!")
     else:
-        # Show last 10 records only for better performance
         recent_records = st.session_state.records[:10]
         for rec in recent_records:
             data = {
@@ -213,4 +210,8 @@ with tab3:
             }
             df = pd.DataFrame(data)
             st.table(df)
+
+
+
+
 
